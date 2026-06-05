@@ -1,0 +1,171 @@
+---
+description: "Perl style — pragmas, layout, subs, ref dereferencing, and hash arrow alignment."
+globs: "**/*.{pm,t,pl,PL,psgi}"
+alwaysApply: false
+---
+
+# Perl style
+
+## Pragmas & safety
+
+* Always include `use strict;` and `use warnings;` at the top of every file.
+* Never use global variables unless explicitly forced by a framework; favor `my` lexical scoping.
+
+## Layout & formatting
+
+* **Indentation**: Use exactly 4 spaces per indentation level. Do not use hard tabs.
+* **Braces**: Use the "cuddled else" style. Put the opening brace on the same line as the keyword, and the closing brace on its own line matching the start keyword column.
+* **Line length**: Keep lines between 120–150 characters whenever possible. Broken lines must split after an operator.
+* **Spacing**: One space before the opening brace of a multi-line block. No space between a function name and its opening parenthesis. Space after every comma.
+
+```perl
+# GOOD — cuddled else
+if ($ok) {
+    do_work();
+} else {
+    handle_error();
+}
+
+# BAD — opening brace on its own line
+if ($ok)
+{
+    do_work();
+}
+
+# GOOD — break after operator
+my $total = $long_variable_name + $another_long_name
+    + $third_part;
+
+# GOOD — no space before '(' on calls; space after commas
+do_something($arg1, $arg2);
+
+# BAD
+do_something ($arg1, $arg2);
+
+# GOOD — one space before '{' on multi-line blocks
+sub process_data {
+    ...
+}
+
+foreach my $item (@items) {
+    ...
+}
+
+# BAD — no space before '{' on multi-line blocks
+sub process_data{
+    ...
+}
+
+foreach my $item (@items){
+    ...
+}
+```
+
+## Subroutines
+
+* Never use subroutine prototypes (`sub name ($$)`) as they are largely broken for general use.
+* Always unpack parameters from `@_` immediately at the top of the subroutine using `my ( $var1, $var2 ) = @_;`.
+* Prefer named parameters (passing a hash reference) if a subroutine accepts more than two parameters. The preferred name for the argument is `$args`. When editing code assume this practice has already been followed if the first unpacked argument is `$args`.
+* Prefer an explicit `return` statement; do not rely on implicit last-evaluated expression returns.
+
+## References & dereferencing
+
+When a scalar holds an **array ref** or **hash ref**, always dereference with `->`. Do not use the legacy/bracket form on the scalar itself.
+
+```perl
+# BAD — ambiguous; looks like a plain array subscript
+my $first = $sites_sorted[0];
+my $slice = $items[1 .. 3];
+
+# GOOD
+my $first = $sites_sorted->[0];
+my $slice = $items->[1 .. 3];
+```
+
+Prefer storing refs in scalars (`my $items = [...]`) and iterating with `@$items` or `$items->[$i]`.
+
+```perl
+# BAD
+my $name = $user{name};
+my $bad  = @$resp{qw(code message)};      # avoid — use braces + arrow context
+
+# GOOD
+my $name = $user->{'name'};
+my @pair = @{$resp}{qw(code message)};
+my $pair = {%{$resp}{qw(code message)}};
+```
+
+Plain arrays and hashes (not refs) use normal subscripting:
+
+```perl
+my $first = $sites[0];      # ok — @sites is a real array
+my $val   = $meta{key};     # ok — %meta is a real hash
+```
+
+When editing: if you introduce or touch a ref, use `->` for element/key access. When converting `@name` to `$name = [...]`, update all subscripts to `$name->[...]` and list context to `@$name`.
+
+## Hash & named-arg alignment
+
+When writing hashes or named-argument lists with **two or more keys on separate lines**, align `=>` in a single column.
+
+* Pad each key with spaces so `=>` begins **one space after the longest key name** in that block (longest key length + 1 space, then `=>`).
+* Align within one hash/list block only (do not chase alignment across unrelated blocks).
+* Apply to hash refs, method args, `return` lists, and option hashes.
+* Single-line hashes do not need alignment.
+
+```perl
+# BAD — ragged =>
+my $resp = $obj->method({
+    key1       => 'value1',
+    key2       => 'value2',
+    key3 => undef,
+    key4 => {key1 => 'value4'},
+});
+
+# GOOD — longest key is key_long (8); one space after each padded key, then =>
+my $resp = $obj->method({
+    key1     => 'value1',
+    key2     => 'value2',
+    key3     => undef,
+    key4     => {key1 => 'value4'},
+    key_long => 'value5',
+    key6     => 'value6',
+});
+```
+
+```perl
+# GOOD — return / option defaults (longest key: hours, 5 chars)
+return (
+    hours => 5,
+    fork  => 10,
+);
+
+# longest key: really_long_key_name, 20 chars
+return {
+    really_long_key_name => $row->{'id'},
+    logs                 => \@logs,
+    summary              => \%summary,
+};
+```
+
+Align inner blocks separately when they have multiple keys:
+
+```perl
+key4 => {key1 => 'value4'},
+```
+
+When adding or changing a key in an aligned block, re-align the whole block.
+
+## Modern idioms
+
+* Avoid using the implicit global variable `$_` except inside short map, grep, or structural blocks.
+* Prefer `if ... elsif ... else` blocks over repeating standalone `if` statements checking the same variable context.
+* Use the three-argument form of `open` (e.g., `open(my $fh, '<', $filename)`) combined with lexical filehandles and explicit error handling via `$!`.
+* Prefer `throw` over `die` when the file already imports a throwing helper (`use Throw;` or `use GT::Throw;`). Otherwise use `die`.
+
+## POD
+
+* Use the standard Plain Old Documentation (POD) format for modules.
+* If present, place `=head1 NAME`, then `=head1 SYNOPSIS`, then `=head1 DESCRIPTION` at the top of the file (after `use` lines), in that order.
+* All other POD (`=head1` sections and below) goes after the functional code.
+* Always initiate POD headers with `=encoding utf8` and format primary `=head1` tags in uppercase.

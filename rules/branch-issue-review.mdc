@@ -1,0 +1,22 @@
+---
+description: >-
+  Branch-scoped code review — use Agent Skill branch-issue-review in the CURRENT workspace
+  git repo only (no other repos). Preconditions summarized here; full workflow in the skill.
+alwaysApply: true
+---
+
+# Branch-scoped issue review
+
+For **check for issues**, **code review**, **review for problems**, **audit the branch**, **review this branch**, **review this PR**, **PR review**, or similar: follow the personal Agent Skill **`branch-issue-review`** (`~/.cursor/skills/branch-issue-review/SKILL.md`). Use **only** the **current workspace git repository**—do not search sibling repos or paths outside `git rev-parse --show-toplevel`.
+
+## Preconditions (always enforce)
+
+1. **Clean tree:** `git status --porcelain` must be empty or **stop** (commit/stash/discard first).
+
+2. **Fetch / pull:** **`git fetch origin`** (or **`git fetch --all --prune`** when multiple remotes matter). Then **`git pull`** when the current branch has an upstream—**stop** if pull conflicts. Then resolve branch checkout from extra message text if applicable.
+
+3. **Extra text names a branch:** Text beyond the review phrase → **`git checkout`** that ref (try **`origin/<name>`** after fetch). Example: `code review issue/PROJ-1234` → checkout `issue/PROJ-1234`, then `origin/issue/PROJ-1234` if needed. Invalid ref → **stop**.
+
+If the user listed **only** exact paths, skip branch diff steps **but still** apply **all** preconditions above when they used branch-review phrasing (**code review**, **review this branch**, etc.).
+
+All numbered steps (base branch, changed paths, scope, report, `unless` severity) and **Reporting conventions** live in the **`branch-issue-review`** skill—open it and follow it end-to-end.
