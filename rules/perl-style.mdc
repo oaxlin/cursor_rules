@@ -16,6 +16,7 @@ alwaysApply: false
 * **Indentation**: Use exactly 4 spaces per indentation level. Do not use hard tabs.
 * **Braces**: Use the "cuddled else" style. Put the opening brace on the same line as the keyword, and the closing brace on its own line matching the start keyword column.
 * **Line length**: Keep lines between 120–150 characters whenever possible. Broken lines must split after an operator.
+* **Trailing whitespace**: Do not leave spaces or tabs at the end of a line. Trim trailing whitespace on every line you edit or add (including blank lines — they must be truly empty).
 * **Spacing**: One space before the opening brace of a multi-line block. No space between a function name and its opening parenthesis. Space after every comma.
 
 ```perl
@@ -88,11 +89,13 @@ Prefer storing refs in scalars (`my $items = [...]`) and iterating with `@$items
 # BAD
 my $name = $user{name};
 my $bad  = @$resp{qw(code message)};      # avoid — use braces + arrow context
+my $val  = $self->method->{'key1'}{'key2'};
 
 # GOOD
 my $name = $user->{'name'};
 my @pair = @{$resp}{qw(code message)};
 my $pair = {%{$resp}{qw(code message)}};
+my $val  = $self->method->{'key1'}->{'key2'};
 ```
 
 Plain arrays and hashes (not refs) use normal subscripting:
@@ -103,6 +106,20 @@ my $val   = $meta{key};     # ok — %meta is a real hash
 ```
 
 When editing: if you introduce or touch a ref, use `->` for element/key access. When converting `@name` to `$name = [...]`, update all subscripts to `$name->[...]` and list context to `@$name`.
+
+When chaining hash key access on references (including a method return value), put `->` before **every** `{...}` after the first dereference. Do not omit the arrow between consecutive hash keys.
+
+```perl
+# BAD — missing -> between hash keys
+$self->method->{'key1'}{'key2'};
+$self->strata->local_cache($TOPIC)->{'auth_token'}{$brand};
+$obj->response->{'data'}{'status'};
+
+# GOOD
+$self->method->{'key1'}->{'key2'};
+$self->strata->local_cache($TOPIC)->{'auth_token'}->{$brand};
+$obj->response->{'data'}->{'status'};
+```
 
 ## Hash & named-arg alignment
 
