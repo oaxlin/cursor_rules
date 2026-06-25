@@ -121,6 +121,21 @@ $self->strata->local_cache($TOPIC)->{'auth_token'}->{$brand};
 $obj->response->{'data'}->{'status'};
 ```
 
+### Dereferencing undef (do not flag as a crash in review)
+
+Since Perl 5.10, dereferencing an **undef variable** as a hash or array ref is safe: it yields `undef`, not a fatal error. Chained access through a missing element is a normal control-flow pattern.
+
+```perl
+# OK — empty grep → undef → docroot fallback or later throw; not a review bug
+$xc_domain_id = [grep { $_->{'domain'} eq $name } @$list]->[0]->{'id'};
+
+# OK — undef scalar hash/array deref returns undef
+my $row = $rows->[0];
+my $id  = $row->{'id'};    # fine when $row is undef
+```
+
+Do **not** treat these as “will crash on undef” in code review or suggest defensive `//` solely for crash avoidance. Prefer explicit extraction only when it improves readability, not because undef deref is unsafe.
+
 ## Hash & named-arg alignment
 
 When writing hashes or named-argument lists with **two or more keys on separate lines**, align `=>` in a single column.
