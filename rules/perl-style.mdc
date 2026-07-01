@@ -1,10 +1,19 @@
 ---
-description: "Perl style — pragmas, layout, subs, ref dereferencing (undef hash-key/array-index deref is safe; do not harden or flag crashes), and hash arrow alignment."
+description: "Perl style and review — layout, subs, ref dereferencing; do not flag undef ->[i]->{key} chains as crashes during diff review."
 globs: "**/*.{pm,t,pl,PL,psgi}"
 alwaysApply: false
 ---
 
 # Perl style
+
+## Review (read first)
+
+When **reviewing** Perl diffs (including uncommitted changes), do **not** report `->[$i]` or `->{'key'}` chains on possibly-undef scalars as crashes, unsafe dereference, or missing guards. Since Perl 5.10 those forms yield `undef`, not a fatal error; handle `undef` downstream with `//`, `defined`, or `throw` when a default or error is needed. See **Dereferencing undef** below.
+
+```markdown
+# BAD review comment — never write this
+Medium — unsafe domain_list access: ->[0] on empty rows will throw before // 'Unavailable'
+```
 
 ## Pragmas & safety
 
