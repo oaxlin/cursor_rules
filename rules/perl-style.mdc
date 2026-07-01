@@ -1,5 +1,5 @@
 ---
-description: "Perl style — pragmas, layout, subs, ref dereferencing, and hash arrow alignment."
+description: "Perl style — pragmas, layout, subs, ref dereferencing (undef hash-key/array-index deref is safe; do not harden or flag crashes), and hash arrow alignment."
 globs: "**/*.{pm,t,pl,PL,psgi}"
 alwaysApply: false
 ---
@@ -121,20 +121,39 @@ $self->strata->local_cache($TOPIC)->{'auth_token'}->{$brand};
 $obj->response->{'data'}->{'status'};
 ```
 
-### Dereferencing undef (do not flag as a crash in review)
+### Dereferencing undef (hash key & array index only — do not harden; do not flag as crash)
 
-Since Perl 5.10, dereferencing an **undef variable** as a hash or array ref is safe: it yields `undef`, not a fatal error. Chained access through a missing element is a normal control-flow pattern.
+Since Perl 5.10, using **`->[$i]`** (array element) or **`->{'key'}`** / **`->{key}`** (hash key) on an **undef** scalar is safe: it yields `undef`, not a fatal error. Chained element/key access through a missing link is a normal control-flow pattern.
+
+This applies **only** to hash-key and array-index dereference. It does **not** apply to other deref forms (e.g. `@$ref`, `%$ref`, `${$ref}`, `&$ref`) — those can still fail on undef.
+
+**When writing or editing Perl:** do not add defensive checks, intermediate variables, or `&& @$rows`-style guards solely because a scalar might be undef before a `->[$i]` or `->{'key'}` access. Handle `undef` downstream (`//`, `defined`, `throw`, etc.) when you need a default or error.
+
+**When reviewing Perl:** do not report hash-key or array-index chains as crashes, runtime errors, or “unsafe dereference” findings. Do not recommend hardening unless the change genuinely improves readability — not for safety.
 
 ```perl
-# OK — empty grep → undef → docroot fallback or later throw; not a review bug
+# OK — [0] on empty list ref yields undef; ->{'id'} on undef yields undef
 $xc_domain_id = [grep { $_->{'domain'} eq $name } @$list]->[0]->{'id'};
 
-# OK — undef scalar hash/array deref returns undef
+# OK — array index then hash key on possibly-undef scalars
 my $row = $rows->[0];
-my $id  = $row->{'id'};    # fine when $row is undef
+my $id  = $row->{'id'};
+
+# OK — domain_list with no rows: [0] is undef, ->{'id'} is undef, // handles display
+my $domain_id = $self->account->domain_list({ domain => $xc_site->{'domain'} })->{'rows'}->[0]->{'id'};
+...
+domain_id => $domain_id // 'Unavailable',
 ```
 
-Do **not** treat these as “will crash on undef” in code review or suggest defensive `//` solely for crash avoidance. Prefer explicit extraction only when it improves readability, not because undef deref is unsafe.
+Do **not** rewrite the above for crash avoidance — e.g. this is **not** required:
+
+```perl
+# NOT required — do not suggest in review; do not add when editing unless clearer
+my $domain_rows = $self->account->domain_list({ domain => $xc_site->{'domain'} })->{'rows'};
+my $domain_id = ($domain_rows && @$domain_rows) ? $domain_rows->[0]->{'id'} : undef;
+```
+
+Explicit extraction is fine when it makes intent obvious to a human reader — never because undef hash-key/array-index access is unsafe.
 
 ## Hash & named-arg alignment
 
