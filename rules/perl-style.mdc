@@ -1,5 +1,5 @@
 ---
-description: "Perl style and review — layout, subs, ref dereferencing; do not flag undef ->[i]->{key} chains as crashes during diff review."
+description: "Perl style and review — layout, subs, ref dereferencing, DBI 0E0; do not flag undef ->[i]->{key} chains as crashes during diff review."
 globs: "**/*.{pm,t,pl,PL,psgi}"
 alwaysApply: false
 ---
@@ -164,6 +164,26 @@ my $domain_id = ($domain_rows && @$domain_rows) ? $domain_rows->[0]->{'id'} : un
 
 Explicit extraction is fine when it makes intent obvious to a human reader — never because undef hash-key/array-index access is unsafe.
 
+## Method calls (invocant as first argument)
+
+When the first argument to a sub is the invocant (`$self`), call it as a **method**, not as a plain function with `$self` passed explicitly.
+
+```perl
+# BAD
+some_method($self);
+
+# GOOD
+$self->some_method;
+```
+
+```perl
+# BAD
+some_method($self, $args);
+
+# GOOD
+$self->some_method($args);
+```
+
 ## Hash & named-arg alignment
 
 When writing hashes or named-argument lists with **two or more keys on separate lines**, align `=>` in a single column.
@@ -215,6 +235,23 @@ key4 => {key1 => 'value4'},
 ```
 
 When adding or changing a key in an aligned block, re-align the whole block.
+
+## DBI row counts (`0E0`)
+
+`$dbh->do()` and `$sth->execute()` return the string `"0E0"` when zero rows are affected. That value is **truthy** in Perl — it is not one of Perl's false values (`undef`, `""`, `0`, `"0"`).
+
+**When reviewing:** do not claim `if (!$rows)` or `throw ... if !$worked` after a DBI `do`/`execute` will fail on zero-row updates. Those checks only trigger on `undef` or `0`, not on `"0E0"`.
+
+**When you need to detect zero rows affected**, compare explicitly:
+
+```perl
+# BAD — 0E0 is truthy; this does NOT catch zero-row updates
+throw 'Update failed' if !$rows;
+
+# GOOD — explicit zero-row check
+throw 'Update failed' if !defined $rows || $rows eq '0E0';
+# or: throw 'Update failed' if !defined $rows || $rows == 0;
+```
 
 ## Modern idioms
 
