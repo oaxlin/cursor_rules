@@ -22,14 +22,14 @@ Cursor reads rules from `~/.cursor/rules/` and skills from `~/.cursor/skills/` a
 | File | Scope |
 |------|-------|
 | `karpathy-guidelines.mdc` | Always applied — behavioral guidelines for coding and review |
-| `branch-issue-review.mdc` | Always applied — routes branch/PR review requests to the matching skill |
+| `branch-issue-review.mdc` | Always applied — routes review requests to the `branch-issue-review` skill (branch vs base, or uncommitted/working-tree) |
 | `perl-style.mdc` | Applied to Perl files (`*.pm`, `*.t`, `*.pl`, etc.) |
 
 ### Skills (`skills/`)
 
 | Skill | Purpose |
 |-------|---------|
-| `branch-issue-review` | Branch-scoped code review in the current workspace git repo |
+| `branch-issue-review` | Code review in the current workspace git repo: **branch vs base** (`code review`, `review this PR`) requires a clean tree; **working tree** (`review uncommitted diff`, `review staged changes`) reviews local changes without commit. Applies workspace rules by file type, large-diff policy, and report-only test/CI guidance. |
 
 ## Updating
 

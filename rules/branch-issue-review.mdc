@@ -11,12 +11,12 @@ For **check for issues**, **code review**, **review for problems**, **audit the 
 
 ## Preconditions (always enforce)
 
-1. **Clean tree:** `git status --porcelain` must be empty or **stop** (commit/stash/discard first).
+1. **Clean tree** (branch-vs-base only): `git status --porcelain` must be empty or **stop** (commit/stash/discard first). **Exception:** uncommitted / working-tree / staged review—see skill **Working-tree review**.
 
-2. **Fetch / pull:** **`git fetch origin`** (or **`git fetch --all --prune`** when multiple remotes matter). Then **`git pull`** when the current branch has an upstream—**stop** if pull conflicts. Then resolve branch checkout from extra message text if applicable.
+2. **Fetch / pull** (branch-vs-base only): **`git fetch origin`** (or **`git fetch --all --prune`** when multiple remotes matter). Then **`git pull`** when the current branch has an upstream—**stop** if pull conflicts. Then resolve branch checkout from extra message text if applicable. **Exception:** **Working-tree review**—skip fetch/pull.
 
 3. **Extra text names a branch:** Text beyond the review phrase → **`git checkout`** that ref (try **`origin/<name>`** after fetch). Example: `code review issue/PROJ-1234` → checkout `issue/PROJ-1234`, then `origin/issue/PROJ-1234` if needed. Invalid ref → **stop**.
 
-If the user listed **only** exact paths, skip branch diff steps **but still** apply **all** preconditions above when they used branch-review phrasing (**code review**, **review this branch**, etc.).
+If the user listed **only** exact paths, skip branch diff steps **but still** apply preconditions **1-3** above when they used branch-review phrasing (**code review**, **review this branch**, etc.) **without** working-tree scope. **Working-tree review** takes precedence when both appear.
 
-All numbered steps (base branch, changed paths, scope, report, `unless` severity) and **Reporting conventions** live in the **`branch-issue-review`** skill—open it and follow it end-to-end.
+All workflow steps (branch diff, working-tree diff, workspace rules, large-diff policy, report, test/CI awareness, `unless` severity) and **Reporting conventions** live in the **`branch-issue-review`** skill—open it and follow it end-to-end.
