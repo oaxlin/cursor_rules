@@ -6,7 +6,8 @@ description: >-
   repos. Branch-vs-base review requires a clean tree; uncommitted/working-tree/staged scope
   uses local diff instead. Then git fetch origin and git pull
   when @{u} exists so remotes are current; optional checkout when extra message text names a branch;
-  diff vs default base (origin/main, origin/master, main, master), review only changed files,
+  diff vs default base (origin/main, origin/master, main, master), review changed files plus
+  minimum supporting files for call-chain issues,
   workspace rules by file type, large-diff policy, test/CI awareness (report-only), hidden-items rollup.
 ---
 
@@ -22,7 +23,7 @@ When triggered (including phrases like **check for issues**, **code review**, **
 
 ## Working-tree review (uncommitted / staged / local changes)
 
-When the user clearly wants to review **local uncommitted changes** (not branch-vs-base), use this path **instead of** precondition **1** (clean tree), precondition **2** (fetch/pull), and git steps **4-6**. Phrases include **uncommitted**, **uncommitted diff**, **working tree**, **working-tree**, **local changes**, **staged**, **staged changes**, **unstaged**, and similar.
+When the user clearly wants to review **local uncommitted changes** (not branch-vs-base), use this path **instead of** precondition **1** (clean tree), precondition **2** (fetch/pull), and git steps **4-5**. Phrases include **uncommitted**, **uncommitted diff**, **working tree**, **working-tree**, **local changes**, **staged**, **staged changes**, **unstaged**, and similar.
 
 **Precedence:** When both branch-review phrasing (**code review**, **review this branch**, etc.) and working-tree phrases appear in the same message (e.g. `code review uncommitted diff`), **working-tree review wins**—use this path, not branch-vs-base.
 
@@ -38,7 +39,7 @@ When the user clearly wants to review **local uncommitted changes** (not branch-
 
 If the user named specific paths, use those (optionally intersect with the diff path list). If the path list is empty, report that there are no changes in that scope and stop.
 
-Read the matching diff for review content: `git diff HEAD`, `git diff --staged`, or `git diff` as appropriate. Then follow steps **7-10** and **Reporting conventions**.
+Read the matching diff for review content: `git diff HEAD`, `git diff --staged`, or `git diff` as appropriate. Then follow steps **6-10** and **Reporting conventions**.
 
 ## Preconditions (apply first)
 
@@ -70,9 +71,9 @@ All git commands and branch resolution below run **only in the current workspace
    - `git merge-base <base> HEAD` then `git diff --name-only <merge-base>..HEAD`
    - or: `git diff --name-only <base>...HEAD` (three-dot)
 
-6. **Review only those files** (plus any path the user additionally names). Do not do a repo-wide review unless they ask.
+6. **Review the changed files** (from step 5, **Working-tree review**, or paths the user names), and **the minimum supporting files** needed to validate behavior that spans files. Start from the diff; expand scope only when a finding depends on a caller, callee, outer transaction, or shared helper not in the diff. Examples: `is_scan` / reconcile logic in `Domain.pm` may require reading the matching `*::Scan` reconcile entrypoint; indirect `q_job` queueing may require tracing into `unassign`, `sync`, or `add_sync_q_job` in related modules. Read the **smallest** set of extra files that closes the chain—typically one or two, not a directory sweep. Do not do a repo-wide review unless they ask. List any supporting files you read beyond the diff in the report summary.
 
-7. **Apply workspace rules by file type.** After you have the changed path list (from step 5, **Working-tree review**, or paths the user named), read and follow matching rules before the generic checklist below.
+7. **Apply workspace rules by file type.** After you have the review path list (changed paths from step 5 or **Working-tree review**, paths the user named, plus any supporting files per step **6** when needed), read and follow matching rules before the generic checklist below.
    - **Discover rules** in `<repo>/.cursor/rules/*.mdc` (project) and `~/.cursor/rules/*.mdc` (user). Project rules win when they conflict with user rules.
    - **Match by path:** use each rule's `globs` when present. Rules with `alwaysApply: true` apply to every review in that workspace.
    - **Precedence:** workspace rules override generic items in **Things to look for** when they conflict.
@@ -90,7 +91,7 @@ All git commands and branch resolution below run **only in the current workspace
 
 10. **Severity for style/readability**: Multi-condition `unless` statements (e.g. `unless A && B`, `unless $x || $y`, chained `unless` with multiple tests) are hard to read and easy to mis-edit. When flagging them, treat them as **low priority** (polish/refactor), not correctness bugs, unless they clearly change behavior.
 
-**Skip** the git-scope steps (resolve base branch, diff changed paths) if the user already listed exact files/paths, is clearly asking about a single known file, or **Working-tree review** applies—**but** if they used branch-review phrasing (**code review**, **review this branch**, etc.) **without** working-tree scope, **still** enforce **clean working tree**, **fetch/pull**, and optional **branch checkout** from extra message text before reviewing those paths. **Still apply steps 7-10** to whatever path list you review.
+**Skip** the git-scope steps (resolve base branch, diff changed paths—steps **4-5**) if the user already listed exact files/paths, is clearly asking about a single known file, or **Working-tree review** applies—**but** if they used branch-review phrasing (**code review**, **review this branch**, etc.) **without** working-tree scope, **still** enforce **clean working tree**, **fetch/pull**, and optional **branch checkout** from extra message text before reviewing those paths. **Still apply step 6** and steps **7-10** to whatever path list you review.
 
 **Still follow Reporting conventions**, including the hidden-items rollup.
 
