@@ -1,0 +1,15 @@
+---
+description: "Require user approval of commit messages before committing"
+alwaysApply: true
+---
+
+# Commit message approval
+
+When the user asks to create a commit:
+
+1. Inspect the commit as usual and propose a commit message.
+2. Present the proposed message to the user.
+3. Wait for the user to explicitly approve it or provide edits.
+4. Only then stage and create the commit.
+
+Do not create a commit in the same response as the initial commit request.
