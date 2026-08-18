@@ -139,16 +139,21 @@ All git commands and branch resolution below run **only in the current workspace
 
 **Do not run tests or CI** unless the user explicitly asks. This section is for **reporting gaps and a suggested verification plan**, not for executing the suite during review.
 
-1. **Test coverage gaps** - call out when changed behavior appears untested or under-tested:
+1. **Test coverage assessment** - Evaluate and rate the tests that exist and or were added with the branch. Specifically looking for lacking test coverage.
+   - Read the branch's changed tests and the smallest set of existing relevant tests needed to determine what changed behavior they exercise.
+   - Rate coverage as **Strong**, **Adequate**, **Partial**, or **Absent**. Base the rating on changed behavior and meaningful paths, not test-file count or line count.
+   - Report the rating and concrete coverage gaps in the review's **Test plan**. State which changed behavior is covered, and identify untested success, error, boundary, integration, or regression paths when applicable.
+
+2. **Test coverage gaps** - call out when changed behavior appears untested or under-tested:
    - new features, bug fixes, or refactors with no corresponding test file changes
    - logic changes where existing tests do not obviously cover new branches or error paths
    - deleted or weakened tests without explanation
 
-2. **Repo test entry points** - when suggesting verification, prefer commands documented in the repo or workspace rules (read `Makefile`, `package.json` scripts, `README`, `.cursor/rules/`, CI workflow files). Cite the **documented** command; do not invent runners. Example pattern: `make test`, `npm test`, `./t/fast_test --no-core-lib`.
+3. **Repo test entry points** - when suggesting verification, prefer commands documented in the repo or workspace rules (read `Makefile`, `package.json` scripts, `README`, `.cursor/rules/`, CI workflow files). Cite the **documented** command; do not invent runners. Example pattern: `make test`, `npm test`, `./t/fast_test --no-core-lib`.
 
-3. **CI config changes** - when `.github/workflows/`, `.gitlab-ci.yml`, or similar files are in the diff, note whether workflow changes look aligned with the code changes (new steps, env vars, services, job triggers). Flag obvious mismatches; do not claim pipelines passed.
+4. **CI config changes** - when `.github/workflows/`, `.gitlab-ci.yml`, or similar files are in the diff, note whether workflow changes look aligned with the code changes (new steps, env vars, services, job triggers). Flag obvious mismatches; do not claim pipelines passed.
 
-4. **Report subsection** - include a **Test plan** section in the review (see **Reporting conventions**). Omit it only when there is nothing useful to say (no test gaps and no CI files touched).
+5. **Report subsection** - include a **Test plan** section in the review (see **Reporting conventions**). Omit it only when there is nothing useful to say (no test gaps and no CI files touched).
 
 ## Reporting conventions
 
