@@ -29,7 +29,7 @@ Cursor reads rules from `~/.cursor/rules/` and skills from `~/.cursor/skills/` a
 
 | Skill | Purpose |
 |-------|---------|
-| `branch-issue-review` | Code review in the current workspace git repo: **branch vs base** (`code review`, `review this PR`) requires a clean tree; **working tree** (`review uncommitted diff`, `review staged changes`) reviews local changes without commit. Applies workspace rules by file type, large-diff policy, and report-only test/CI guidance. |
+| `branch-issue-review` | Code review in the current workspace git repo by default, or explicitly named repositories for multi-repo reviews: **branch vs base** (`code review`, `review this PR`) requires a clean tree; **working tree** (`review uncommitted diff`, `review staged changes`) reviews local changes without commit. Applies workspace rules by file type, large-diff policy, and report-only test/CI guidance. |
 
 ## Updating
 

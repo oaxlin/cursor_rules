@@ -1,13 +1,16 @@
 ---
 description: >-
-  Branch-scoped code review — use Agent Skill branch-issue-review in the CURRENT workspace
-  git repo only (no other repos). Preconditions summarized here; full workflow in the skill.
+  Branch-scoped code review — use Agent Skill branch-issue-review in the current workspace
+  repository, or explicitly named repositories for a multi-repository review.
+  Preconditions summarized here; full workflow in the skill.
 alwaysApply: true
 ---
 
 # Branch-scoped issue review
 
-For **check for issues**, **code review**, **review for problems**, **audit the branch**, **review this branch**, **review this PR**, **PR review**, or similar: follow the personal Agent Skill **`branch-issue-review`** (`~/.cursor/skills/branch-issue-review/SKILL.md`). Use **only** the **current workspace git repository**—do not search sibling repos or paths outside `git rev-parse --show-toplevel`.
+For **check for issues**, **code review**, **review for problems**, **audit the branch**, **review this branch**, **review this PR**, **PR review**, or similar: follow the personal Agent Skill **`branch-issue-review`** (`~/.cursor/skills/branch-issue-review/SKILL.md`).
+
+Default to the current workspace repository. Exception: when the user explicitly requests a multi-repository review and names each repository path, review only those named repositories. Do not discover or scan sibling repositories. Apply the skill's clean-tree, fetch/pull, branch resolution, diff, and reporting workflow independently in every named repository.
 
 ## Preconditions (always enforce)
 

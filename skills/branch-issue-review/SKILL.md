@@ -1,10 +1,10 @@
 ---
 name: branch-issue-review
 description: >-
-  Branch-scoped code review in the CURRENT workspace git repository only: check for issues,
-  code review, audit/review the branch, review this PR, PR review (without a file list). Do not search other
-  repos. Branch-vs-base review requires a clean tree; uncommitted/working-tree/staged scope
-  uses local diff instead. Then git fetch origin and git pull
+  Branch-scoped code review in the current workspace repository, or explicitly named
+  repositories for a multi-repository review: check for issues, code review, audit/review
+  the branch, review this PR, PR review (without a file list). Branch-vs-base review
+  requires a clean tree; uncommitted/working-tree/staged scope uses local diff. Then git fetch origin and git pull
   when @{u} exists so remotes are current; optional checkout when extra message text names a branch;
   diff vs default base (origin/main, origin/master, main, master), review changed files plus
   minimum supporting files for call-chain issues,
@@ -15,7 +15,9 @@ description: >-
 
 ## Scope
 
-This skill runs entirely inside **one git repository**: the **current Cursor workspace’s repo** (the tree returned by `git rev-parse --show-toplevel` when run from the workspace root). It is meant to work in **whatever** project you have open—not tied to a fixed path—but **never** look for branches, run review commands, or read files **outside** that repo (no scanning `~/repos`, sibling folders, or multi-repo search unless the user explicitly opens that other repo as the workspace).
+By default, this skill runs in **one git repository**: the **current Cursor workspace's repo** (the tree returned by `git rev-parse --show-toplevel` when run from the workspace root).
+
+**Explicit multi-repository exception:** When the user explicitly requests a multi-repository review and names every repository path, review exactly those repositories. Do not discover, scan, or infer sibling repositories. Run the complete workflow independently in each named repository: resolve its top level, apply preconditions, resolve or check out the requested branch, calculate its diff against its own base branch, and report findings with repository-qualified paths. A branch token applies to every named repository unless the user maps branches to repositories explicitly. If a precondition or branch lookup fails in one repository, report that repository as blocked and continue reviewing the other explicitly named repositories when safe.
 
 Use this whenever the user asks for branch-scoped review without listing only specific files (unless **Preconditions** below still apply).
 
@@ -43,7 +45,7 @@ Read the matching diff for review content: `git diff HEAD`, `git diff --staged`,
 
 ## Preconditions (apply first)
 
-All git commands and branch resolution below run **only in the current workspace git repo**. **Skip preconditions 1-2** when **Working-tree review** applies.
+All git commands and branch resolution below run in the selected review repository. For explicit multi-repository reviews, repeat them independently in each named repository. **Skip preconditions 1-2** when **Working-tree review** applies.
 
 1. **Stop if dirty tree** (branch-vs-base reviews only): `git status --porcelain` must be empty. If not, **stop** the review; ask the user to commit, stash, or discard. Do not continue until clean. **Exception:** **Working-tree review** (above)—a dirty tree is expected.
 
@@ -158,6 +160,13 @@ All git commands and branch resolution below run **only in the current workspace
 ## Reporting conventions
 
 - Be constructive - explain *why* something is a problem, not just that it is.
+- **Multiple-repository reviews:** When branches were reviewed in more than one repository, begin the report with a `## Reviewed` section that lists each repository and reviewed branch. For example:
+  ```markdown
+  ## Reviewed
+  - `api_lib`: `feature/PROJ-1234-library-change`
+  - `api_server`: `feature/PROJ-1234-api-change`
+  ```
+  List only repositories whose branch diff was actually reviewed. Mention repositories skipped because of a failed precondition separately in the summary.
 - **Test plan (when relevant):** After findings (or as its own short subsection), list suggested verification steps using repo-documented commands. Example:
   ```markdown
   ## Test plan
