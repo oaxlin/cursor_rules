@@ -1,0 +1,38 @@
+---
+description: Prefer kubectl-readonly for read-only Kubernetes cluster checks
+alwaysApply: true
+---
+
+# Prefer kubectl-readonly
+
+When inspecting Kubernetes clusters (pod status, logs, describe, events, etc.), use the read-only wrapper instead of plain `kubectl`:
+
+```bash
+~/.krew/bin/kubectl-readonly
+```
+
+This wrapper is on the auto-allow list and blocks mutating commands.
+
+## When to use
+
+- `get`, `describe`, `logs`, `top`, `events`, `cluster-info`, `rollout status`, and other read-only inspection
+- HAL qa/prod checks with explicit kubeconfig, for example:
+
+```bash
+KUBECONFIG=~/.kube/bhpreprodapps-hal1-kube-config \
+  ~/.krew/bin/kubectl-readonly get pods -n apps-zero
+
+KUBECONFIG=~/.kube/bhpreprodapps-hal2-kube-config \
+  ~/.krew/bin/kubectl-readonly get pods -n apps
+```
+
+## When plain kubectl is OK
+
+Use plain `kubectl` only when the task requires a mutating command (`exec`, `delete`, `apply`, `patch`, etc.) or when the user explicitly asks for `kubectl`.
+
+Custom user tools that shell into pods are separate from this rule.
+
+## Notes
+
+- `kubectl-readonly` still uses OCI token auth from the kubeconfig; it does not bypass `oci session refresh`.
+- Do not prepend separate `oci session validate` / `oci session refresh` calls unless the user asks or auth errors require it.
