@@ -257,8 +257,26 @@ throw 'Update failed' if !defined $rows || $rows eq '0E0';
 
 * Avoid using the implicit global variable `$_` except inside short map, grep, or structural blocks.
 * Prefer `if ... elsif ... else` blocks over repeating standalone `if` statements checking the same variable context.
+* **Do not use `unless` when the condition contains logical operators** (`&&`, `||`, `and`, `or`, `//`, `//=`). Use `if` with negated logic instead — compound `unless` conditions are easy to misread.
 * Use the three-argument form of `open` (e.g., `open(my $fh, '<', $filename)`) combined with lexical filehandles and explicit error handling via `$!`.
 * Prefer `throw` over `die` when the file already imports a throwing helper (`use Throw;` or `use GT::Throw;`). Otherwise use `die`.
+
+```perl
+# BAD — logical operators in unless
+return unless defined $cert_pem && length $cert_pem;
+return unless $info && ref $info eq 'HASH';
+return { cdn_addon_id => undef } unless $resp && ref $resp eq 'HASH';
+
+# GOOD — use if with negated condition
+return if !defined $cert_pem || !length $cert_pem;
+return if !$info || ref $info ne 'HASH';
+return { cdn_addon_id => undef } if !$resp || ref $resp ne 'HASH';
+
+# OK — simple scalar/array truthiness; no logical operators
+return unless $cdn;
+throw 'missing certificate' unless $args->{'certificate'};
+@errors = ('Unknown error') unless @errors;
+```
 
 ## POD
 
