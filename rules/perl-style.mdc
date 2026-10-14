@@ -1,7 +1,7 @@
 ---
 description: "Perl style and review — layout, subs, ref dereferencing, DBI 0E0; do not flag undef ->[i]->{key} chains as crashes during diff review."
 globs: "**/*.{pm,t,pl,PL,psgi}"
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Perl style
