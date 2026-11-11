@@ -16,14 +16,11 @@ This wrapper is on the auto-allow list and blocks mutating commands.
 ## When to use
 
 - `get`, `describe`, `logs`, `top`, `events`, `cluster-info`, `rollout status`, and other read-only inspection
-- HAL qa/prod checks with explicit kubeconfig, for example:
+- Checks against a named cluster via `KUBECONFIG` or `--context`, for example:
 
 ```bash
-KUBECONFIG=~/.kube/bhpreprodapps-hal1-kube-config \
-  ~/.krew/bin/kubectl-readonly get pods -n apps-zero
-
-KUBECONFIG=~/.kube/bhpreprodapps-hal2-kube-config \
-  ~/.krew/bin/kubectl-readonly get pods -n apps
+KUBECONFIG=~/.kube/<cluster>-kube-config \
+  ~/.krew/bin/kubectl-readonly get pods -n <namespace>
 ```
 
 ## When plain kubectl is OK
@@ -34,5 +31,4 @@ Custom user tools that shell into pods are separate from this rule.
 
 ## Notes
 
-- `kubectl-readonly` still uses OCI token auth from the kubeconfig; it does not bypass `oci session refresh`.
-- Do not prepend separate `oci session validate` / `oci session refresh` calls unless the user asks or auth errors require it.
+- `kubectl-readonly` still uses whatever auth is configured in the kubeconfig; refresh credentials only when the user asks or auth errors require it.

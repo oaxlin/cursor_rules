@@ -5,11 +5,15 @@ alwaysApply: true
 
 # Perl review
 
-When **reviewing or editing** Perl (`*.pm`, `*.t`, `*.pl`, etc.), follow **`perl-style.mdc`** in this same `rules/` directory for layout, refs, DBI `0E0`, and the full style guide.
+When **reviewing or editing** Perl (`*.pm`, `*.t`, `*.pl`, etc.), follow **`perl-style.mdc`** for layout, refs, DBI `0E0`, and the full style guide.
 
 ## Do not flag undef dereference chains as crashes
 
-Do not suggest guards, intermediate variables, or "unsafe dereference" findings solely because a chain like `->{'rows'}->[0]->{'id'}` might hit undef. Since Perl 5.10, array-index and hash-key dereference on undef yields `undef`. Treat `//`, `defined`, and explicit `throw` as the intended handling — not a bug to fix.
+Since Perl 5.10, array-index and hash-key dereference on **undef** yields `undef`, not a fatal error. Chained `->{'key'}` / `->[$i]` through a missing link is normal control flow.
+
+Do not suggest guards, intermediate variables, or "unsafe dereference" findings solely because a chain like `->{'rows'}->[0]->{'id'}` might hit undef. Do not report hash-key or array-index chains as crashes, runtime errors, or “unsafe dereference” findings. Do not recommend hardening unless the change genuinely improves readability — not for safety.
+
+Treat `//`, `defined`, and explicit `throw` as the intended handling downstream — not a bug to fix in the chain itself.
 
 ```markdown
 # BAD review comment — never write this

@@ -1,6 +1,5 @@
 ---
 description: Perl style — layout, subs, ref dereferencing, DBI 0E0; for review findings see perl-review.mdc
-globs: "**/*.{pm,t,pl,PL,psgi}"
 alwaysApply: true
 ---
 
@@ -8,7 +7,7 @@ alwaysApply: true
 
 ## Review (read first)
 
-When **reviewing** Perl diffs (including uncommitted changes), follow **`perl-review.mdc`** in this same `rules/` directory for what **not** to flag as a crash. For writing and editing behavior, see **Dereferencing undef** below.
+When **reviewing** Perl diffs (including uncommitted changes), follow **`perl-review.mdc`** for what **not** to flag as a crash. For writing and editing behavior, see **Dereferencing undef** below.
 
 ## Pragmas & safety
 
@@ -125,15 +124,13 @@ $self->strata->local_cache($TOPIC)->{'auth_token'}->{$brand};
 $obj->response->{'data'}->{'status'};
 ```
 
-### Dereferencing undef (hash key & array index only — do not harden; do not flag as crash)
+### Dereferencing undef (hash key & array index when writing or editing)
 
 Since Perl 5.10, using **`->[$i]`** (array element) or **`->{'key'}`** / **`->{key}`** (hash key) on an **undef** scalar is safe: it yields `undef`, not a fatal error. Chained element/key access through a missing link is a normal control-flow pattern.
 
 This applies **only** to hash-key and array-index dereference. It does **not** apply to other deref forms (e.g. `@$ref`, `%$ref`, `${$ref}`, `&$ref`) — those can still fail on undef.
 
-**When writing or editing Perl:** do not add defensive checks, intermediate variables, or `&& @$rows`-style guards solely because a scalar might be undef before a `->[$i]` or `->{'key'}` access. Handle `undef` downstream (`//`, `defined`, `throw`, etc.) when you need a default or error.
-
-**When reviewing Perl:** do not report hash-key or array-index chains as crashes, runtime errors, or “unsafe dereference” findings. Do not recommend hardening unless the change genuinely improves readability — not for safety.
+Do not add defensive checks, intermediate variables, or `&& @$rows`-style guards solely because a scalar might be undef before a `->[$i]` or `->{'key'}` access. Handle `undef` downstream (`//`, `defined`, `throw`, etc.) when you need a default or error.
 
 ```perl
 # OK — [0] on empty list ref yields undef; ->{'id'} on undef yields undef

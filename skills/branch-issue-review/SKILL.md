@@ -151,7 +151,7 @@ All git commands and branch resolution below run in the selected review reposito
    - logic changes where existing tests do not obviously cover new branches or error paths
    - deleted or weakened tests without explanation
 
-3. **Repo test entry points** - when suggesting verification, prefer commands documented in the repo or workspace rules (read `Makefile`, `package.json` scripts, `README`, `.cursor/rules/`, CI workflow files). Cite the **documented** command; do not invent runners. Example pattern: `make test`, `npm test`, `./t/fast_test --no-core-lib`.
+3. **Repo test entry points** - when suggesting verification, prefer commands documented in the repo or workspace rules (read `Makefile`, `package.json` scripts, `README`, `.cursor/rules/`, CI workflow files). Cite the **documented** command; do not invent runners. Example pattern: `make test`, `npm test`, `pytest`, `go test ./...`.
 
 4. **CI config changes** - when `.github/workflows/`, `.gitlab-ci.yml`, or similar files are in the diff, note whether workflow changes look aligned with the code changes (new steps, env vars, services, job triggers). Flag obvious mismatches; do not claim pipelines passed.
 
