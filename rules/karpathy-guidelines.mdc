@@ -31,6 +31,10 @@ Before implementing:
 
 **Thin wrappers:** Prefer not to add a function (or method) whose entire body only calls one other function with the same arguments unless it is required by an API boundary (callback signature, framework hook, override point, or stable public facade over a private helper). Call the underlying function directly instead.
 
+Do **not** add a helper whose only job is to read a constant, default, or field from an existing meta/hash API — e.g. `sub _thing_default { $meta->()->{'field'}{'default'} }` instead of inlining that lookup at each call site. **DRY does not justify this:** repeating the same one-line dereference in two or three places is fine. Extract only when the block adds real logic (validation, normalization, branching) or the framework requires a named sub (e.g. `custom => \\&...` in HAL `add__meta`).
+
+Before adding a `_*_default*` or `_*_from_config*` helper, ask: “Would deleting this sub and pasting its body at callers change behavior?” If no, skip the sub.
+
 **Redundant singleton objects:** Do not introduce a class, factory, or `getInstance`-style accessor whose only job is to return a single object that is already that instance (or could be a module-level constant). Export or use the one object directly; avoid `new Foo()` + `Foo.getInstance()` when `Foo` is always the same plain object or namespace.
 
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
