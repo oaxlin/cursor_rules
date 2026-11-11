@@ -80,7 +80,7 @@ All git commands and branch resolution below run in the selected review reposito
    - **Match by path:** use each rule's `globs` when present. Rules with `alwaysApply: true` apply to every review in that workspace.
    - **Precedence:** workspace rules override generic items in **Things to look for** when they conflict.
    - **Skip as checklist:** `branch-issue-review.mdc` only routes to this skill - do not treat it as extra review criteria.
-   - **Examples** (read the actual files; do not assume names): `**/*.{pm,t,pl}` may map to `perl-style.mdc` or a repo `perl-review.mdc`; test-related rules may prescribe how to run or recommend tests.
+   - **Examples** (read the actual files; do not assume names): `**/*.{pm,t,pl}` maps to `perl-style.mdc` and `perl-review.mdc` (install from this repo's `rules/` into `~/.cursor/rules/`); repo-local `perl-review.mdc` stubs are deprecated. Test-related rules may prescribe how to run or recommend tests.
 
 8. **Large-diff policy.** When the changed path list is large, scope the review explicitly instead of pretending every file got equal depth.
    - **Threshold:** treat **more than 30 changed files** or a very large diff (rough guide: thousands of lines changed) as a large diff. State that in the report summary.

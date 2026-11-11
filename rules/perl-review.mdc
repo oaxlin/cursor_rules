@@ -1,0 +1,19 @@
+---
+description: Perl review — undef hash/array deref is not a crash; see perl-style for full style
+alwaysApply: true
+---
+
+# Perl review
+
+When **reviewing or editing** Perl (`*.pm`, `*.t`, `*.pl`, etc.), follow **`perl-style.mdc`** in this same `rules/` directory for layout, refs, DBI `0E0`, and the full style guide.
+
+## Do not flag undef dereference chains as crashes
+
+Do not suggest guards, intermediate variables, or "unsafe dereference" findings solely because a chain like `->{'rows'}->[0]->{'id'}` might hit undef. Since Perl 5.10, array-index and hash-key dereference on undef yields `undef`. Treat `//`, `defined`, and explicit `throw` as the intended handling — not a bug to fix.
+
+```markdown
+# BAD review comment — never write this
+Medium — unsafe domain_list access: ->[0] on empty rows will throw before // 'Unavailable'
+```
+
+Repo-local copies under `<repo>/.cursor/rules/**/perl-review.mdc` are deprecated; install rules from this repository into `~/.cursor/rules/` instead.

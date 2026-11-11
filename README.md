@@ -24,7 +24,8 @@ Cursor reads rules from `~/.cursor/rules/` and skills from `~/.cursor/skills/` a
 | `karpathy-guidelines.mdc` | Always applied — behavioral guidelines for coding and review |
 | `branch-issue-review.mdc` | Always applied — routes review requests to the `branch-issue-review` skill (branch vs base, or uncommitted/working-tree) |
 | `kubectl-readonly.mdc` | Always applied — prefer `~/.krew/bin/kubectl-readonly` for read-only cluster checks |
-| `perl-style.mdc` | Always applied — Perl layout, refs (`->` between hash keys), DBI `0E0`, review notes; also scoped to `*.pm`, `*.t`, `*.pl`, etc. |
+| `perl-style.mdc` | Always applied — Perl layout, refs (`->` between hash keys), DBI `0E0`; also scoped to `*.pm`, `*.t`, `*.pl`, etc. Pairs with `perl-review.mdc`. |
+| `perl-review.mdc` | Always applied — Perl **review** policy (undef `->[]` / `->{}` chains are not crashes); replaces repo-local `team/perl-review.mdc` stubs after install to `~/.cursor/rules/`. |
 | `perl-run-scripts-directly.mdc` | Always applied — run executable `*.pl` via `./script` when shebang is present |
 
 ### Skills (`skills/`)
