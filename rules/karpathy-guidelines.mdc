@@ -29,6 +29,10 @@ Before implementing:
 - No error handling for impossible scenarios.
 - If you write 200 lines and it could be 50, rewrite it.
 
+**Thin wrappers:** Prefer not to add a function (or method) whose entire body only calls one other function with the same arguments unless it is required by an API boundary (callback signature, framework hook, override point, or stable public facade over a private helper). Call the underlying function directly instead.
+
+**Redundant singleton objects:** Do not introduce a class, factory, or `getInstance`-style accessor whose only job is to return a single object that is already that instance (or could be a module-level constant). Export or use the one object directly; avoid `new Foo()` + `Foo.getInstance()` when `Foo` is always the same plain object or namespace.
+
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
 
 ## 3. Surgical Changes
