@@ -4,4 +4,5 @@ rules/branch-issue-review.mdc=Git::Hooks::IgnoreFile
 rules/karpathy-guidelines.mdc=Git::Hooks::IgnoreFile
 rules/kubectl-readonly.mdc=Git::Hooks::IgnoreFile
 rules/perl-style.mdc=Git::Hooks::IgnoreFile
+rules/perl-run-scripts-directly.mdc=Git::Hooks::IgnoreFile
 skills/branch-issue-review/SKILL.md=Git::Hooks::IgnoreFile

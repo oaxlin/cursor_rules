@@ -1,0 +1,23 @@
+---
+description: Run executable Perl scripts via ./script, not perl script
+alwaysApply: true
+---
+
+# Run Perl scripts directly
+
+When executing a `*.pl` file in this environment:
+
+1. If the file is **executable** (`-x`) and has a **shebang** (`#!` on line 1), run it as:
+
+   ```bash
+   ./path/to/script.pl [args]
+   ```
+
+   from the script's directory, or use the full path: `/path/to/script.pl [args]`.
+
+2. Use `perl …` only when:
+   - the script is **not** executable;
+   - there is **no** shebang (or it is wrong for the intent);
+   - you need explicit perl flags (`-c`, `-d`, `-I…`, `-M…`) that the shebang does not provide.
+
+3. Do not prepend `perl` out of habit when `./script.pl` is the normal invocation — the shebang may set `-I`, warnings, or a specific interpreter path.
