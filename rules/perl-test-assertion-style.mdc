@@ -25,6 +25,8 @@ is_deeply $list_row, {
 is $list_row->{'id'}, 40, 'list id';
 is $list_row->{'code'}, 'OCICODE', 'list code';
 # ... one is per field ...
+
+is_deeply $row, {id => 40}, 'only one key';   # use is $row->{'id'}, 40 instead
 ```
 
 ## Conventions
@@ -36,4 +38,4 @@ is $list_row->{'code'}, 'OCICODE', 'list code';
 - **Skip path**: one `fail` with a clear prerequisite message; do not emit one `fail` per field that `is_deeply` would have covered.
 - **Plan counts**: each `is_deeply` is **one** test. After consolidating `is` → `is_deeply`, update whatever plan the file uses (`:Test(N)`, `run_tests` totals, `plan()`, etc.) and re-run the touched `.t` file with that repo’s normal test runner.
 
-Use separate `is` / `ok` / `like` when asserting unrelated values or when only a single field matters.
+Use separate `is` / `ok` / `like` when asserting unrelated values or **only one** field (including a one-key hash from a narrow `select`). Reserve `is_deeply` for **two or more** keys in one assertion.
