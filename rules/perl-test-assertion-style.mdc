@@ -1,0 +1,39 @@
+---
+description: Prefer is_deeply when asserting multiple fields on one hash in Perl tests
+globs: **/*.t
+alwaysApply: true
+---
+
+# Multi-field hash assertions
+
+When an assertion checks **several keys on the same row or hash**, prefer **one** `is_deeply` over multiple `is` calls.
+
+## Prefer
+
+```perl
+is_deeply $list_row, {
+    id   => 40,
+    name => 'oci-label-1',
+    code => 'OCICODE',
+    type => 'oci',
+}, 'thing_list - region.*' or diag explain $list_row;
+```
+
+## Avoid
+
+```perl
+is $list_row->{'id'}, 40, 'list id';
+is $list_row->{'code'}, 'OCICODE', 'list code';
+# ... one is per field ...
+```
+
+## Conventions
+
+- **Key order** in the expected hash: match `select` / list column order when practical; align `=>` in multi-line blocks (see `perl-style.mdc`).
+- **Label**: `{call_or_scope} - {topic}.*` (e.g. `'thing_list - region.*'`), not one long sentence per field.
+- **Exact shape**: `is_deeply` expects the full hash you got back. With a narrow `select`, list only the fields you asked for. For a **subset** of keys inside a larger structure, use `cmp_deeply` + `superhashof` (Test::Deep), not stacked `is` and not a full `is_deeply` unless every extra key is listed.
+- **Failure output**: append `or diag explain $actual` on the same line when the structure helps debugging.
+- **Skip path**: one `fail` with a clear prerequisite message; do not emit one `fail` per field that `is_deeply` would have covered.
+- **Plan counts**: each `is_deeply` is **one** test. After consolidating `is` → `is_deeply`, update whatever plan the file uses (`:Test(N)`, `run_tests` totals, `plan()`, etc.) and re-run the touched `.t` file with that repo’s normal test runner.
+
+Use separate `is` / `ok` / `like` when asserting unrelated values or when only a single field matters.
